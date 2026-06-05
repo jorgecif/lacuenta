@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>La Cuenta · Marcador</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Baloo+2:wght@500;600;700;800&family=Caveat:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#FBE6BF;
+    --bg2:#FBEDD0;
+    --cream:#FDF6E3;
+    --ink:#1E1A17;
+    --orange:#F26B1F;
+    --orange-d:#D8530E;
+    --orange-l:#F79A4E;
+
+    --p1:#EE3D32; /* rojo */
+    --p2:#5BD6A2; /* menta */
+    --p3:#F6A6C4; /* rosa */
+    --p4:#F7C948; /* amarillo */
+    --p5:#6FB7E8; /* azul */
+    --p6:#B89BE3; /* lavanda */
+    --p7:#F2884B; /* coral */
+    --p8:#46C7B4; /* turquesa */
+
+    --font-display:'Anton', sans-serif;
+    --font-hand:'Caveat', cursive;
+    --font-bold:'Baloo 2', sans-serif;
+
+    --shadow:5px 5px 0 var(--ink);
+    --shadow-sm:3px 3px 0 var(--ink);
+    --bd:3px solid var(--ink);
+  }
+
+  *{ box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html,body{ margin:0; padding:0; }
+  body{
+    font-family:var(--font-bold);
+    color:var(--ink);
+    background:
+      radial-gradient(circle at 12% 8%, rgba(242,107,31,.10), transparent 40%),
+      radial-gradient(circle at 88% 92%, rgba(91,214,162,.12), transparent 42%),
+      var(--bg);
+    background-attachment:fixed;
+    min-height:100vh;
+    overflow-x:hidden;
+  }
+  /* sutil textura de puntitos */
+  body::before{
+    content:"";
+    position:fixed; inset:0; z-index:0; pointer-events:none;
+    background-image:radial-gradient(rgba(30,26,23,.05) 1.2px, transparent 1.2px);
+    background-size:22px 22px;
+  }
+
+  .app{
+    position:relative; z-index:1;
+    max-width:760px; margin:0 auto;
+    padding:26px 18px 60px;
+    min-height:100vh;
+    display:flex; flex-direction:column;
+  }
+
+  /* ---------- pantallas ---------- */
+  .screen{ display:none; flex:1; flex-direction:column; animation:pop .45s cubic-bezier(.2,.9,.3,1.3); }
+  .screen.active{ display:flex; }
+  @keyframes pop{ from{ opacity:0; transform:translateY(14px) scale(.985);} to{opacity:1; transform:none;} }
+
+  .eyebrow{
+    font-family:var(--font-hand); font-weight:700;
+    color:var(--orange); text-align:center;
+    font-size:1.55rem; line-height:1; margin:0 0 -2px;
+    transform:rotate(-1.2deg);
+  }
+  h1.title{
+    font-family:var(--font-display); text-align:center;
+    font-size:clamp(2.4rem,9vw,3.6rem); line-height:.92;
+    letter-spacing:.5px; margin:0 0 6px; color:var(--ink);
+  }
+  .subnote{
+    font-family:var(--font-hand); font-weight:600;
+    text-align:center; font-size:1.25rem; color:#6b5a47; margin:2px 0 22px;
+  }
+
+  /* ---------- panel / tarjeta base ---------- */
+  .card{
+    background:var(--cream);
+    border:var(--bd); border-radius:22px;
+    box-shadow:var(--shadow);
+  }
+
+  /* ---------- botones ---------- */
+  .btn{
+    font-family:var(--font-bold); font-weight:700;
+    border:var(--bd); border-radius:18px;
+    padding:16px 20px; font-size:1.15rem;
+    cursor:pointer; width:100%;
+    box-shadow:var(--shadow);
+    transition:transform .07s ease, box-shadow .07s ease, filter .15s ease;
+    display:flex; align-items:center; justify-content:center; gap:10px;
+  }
+  .btn:active{ transform:translate(4px,4px); box-shadow:1px 1px 0 var(--ink); }
+  .btn-primary{ background:var(--orange); color:#fff; }
+  .btn-primary:hover{ filter:brightness(1.04); }
+  .btn-cream{ background:var(--cream); color:var(--ink); }
+  .btn-cream:hover{ background:#fff; }
+  .btn-row{ display:flex; gap:14px; }
+  .btn-back{ flex:0 0 auto; width:auto; min-width:96px; padding:16px 22px; background:var(--cream); }
+
+  /* ============ PANTALLA INICIO ============ */
+  .hero-wrap{ flex:1; display:flex; flex-direction:column; justify-content:center; align-items:center; gap:6px; }
+  .poster{
+    width:min(420px,86vw);
+    border:4px solid var(--ink); border-radius:22px;
+    box-shadow:8px 8px 0 var(--ink);
+    overflow:hidden; background:#F39B3E;
+    transform:rotate(-1.5deg);
+    transition:transform .25s ease;
+  }
+  .poster:hover{ transform:rotate(0deg) scale(1.01); }
+  .poster svg{ display:block; width:100%; height:auto; }
+  .credits{
+    font-family:var(--font-hand); font-weight:600;
+    color:#7a6a55; font-size:1.05rem; margin:14px 0 2px; text-align:center;
+  }
+
+  /* ============ CONFIGURACIÓN ============ */
+  .cfg-block{ padding:22px; }
+  .cfg-label{ font-family:var(--font-hand); font-weight:700; font-size:1.4rem; color:#3c3026; margin-bottom:12px; }
+  .stepper{ display:flex; align-items:center; justify-content:space-between; gap:14px; }
+  .step-btn{
+    width:62px; height:62px; flex:0 0 62px; border-radius:50%;
+    background:var(--p2); border:var(--bd); box-shadow:var(--shadow-sm);
+    font-family:var(--font-bold); font-weight:800; font-size:2rem; line-height:1;
+    color:var(--ink); cursor:pointer; display:flex; align-items:center; justify-content:center;
+    transition:transform .07s, box-shadow .07s, filter .15s;
+  }
+  .step-btn:hover{ filter:brightness(1.05); }
+  .step-btn:active{ transform:translate(3px,3px); box-shadow:1px 1px 0 var(--ink); }
+  .step-btn:disabled{ opacity:.4; cursor:not-allowed; }
+  .step-num{ font-family:var(--font-bold); font-weight:800; font-size:3.4rem; line-height:1; }
+  .step-hint{ font-family:var(--font-hand); font-weight:600; font-size:1.1rem; color:#8a7860; text-align:center; margin-top:4px; }
+  .amount-field{
+    margin-top:6px; display:flex; align-items:center; gap:6px;
+    background:#fff; border:var(--bd); border-radius:16px; padding:12px 18px;
+    box-shadow:inset 0 0 0 0 transparent;
+  }
+  .amount-field .cur{ font-family:var(--font-bold); font-weight:800; font-size:1.7rem; }
+  .amount-field input{
+    border:0; outline:0; background:transparent; width:100%;
+    font-family:var(--font-bold); font-weight:800; font-size:1.7rem; color:var(--ink);
+  }
+  .divider{ height:2px; background:rgba(30,26,23,.12); margin:22px 0; border-radius:2px; }
+
+  /* ============ JUGADORES ============ */
+  .players-list{ display:flex; flex-direction:column; gap:14px; margin-bottom:8px; }
+  .player-row{
+    display:flex; align-items:center; gap:14px;
+    background:var(--cream); border:var(--bd); border-radius:18px;
+    box-shadow:var(--shadow-sm); padding:12px 16px;
+  }
+  .pdot{
+    width:42px; height:42px; flex:0 0 42px; border-radius:50%;
+    border:var(--bd); display:flex; align-items:center; justify-content:center;
+    font-family:var(--font-bold); font-weight:800; font-size:1.25rem; color:var(--ink);
+  }
+  .player-row input{
+    border:0; outline:0; background:transparent; width:100%;
+    font-family:var(--font-hand); font-weight:600; font-size:1.45rem; color:var(--ink);
+  }
+  .player-row input::placeholder{ color:#b7a890; }
+
+  /* ============ PARTIDA ============ */
+  .game-top{ display:flex; justify-content:space-between; align-items:center; margin-bottom:4px; }
+  .round-chip{
+    font-family:var(--font-bold); font-weight:700; font-size:.95rem;
+    background:var(--cream); border:var(--bd); border-radius:999px;
+    padding:6px 16px; box-shadow:var(--shadow-sm);
+  }
+  .undo-btn{
+    font-family:var(--font-bold); font-weight:700; font-size:.95rem;
+    background:var(--cream); border:var(--bd); border-radius:999px;
+    padding:6px 16px; box-shadow:var(--shadow-sm); cursor:pointer;
+    transition:transform .07s, box-shadow .07s; display:flex; align-items:center; gap:6px;
+  }
+  .undo-btn:active{ transform:translate(2px,2px); box-shadow:1px 1px 0 var(--ink); }
+  .undo-btn:disabled{ opacity:.35; cursor:not-allowed; }
+
+  .grid{
+    display:grid; gap:14px; margin:16px 0 4px;
+    grid-template-columns:repeat(auto-fit, minmax(150px,1fr));
+  }
+  .pcard{
+    border:var(--bd); border-radius:18px; box-shadow:var(--shadow-sm);
+    padding:14px 16px 16px; cursor:pointer; position:relative;
+    transition:transform .1s ease, box-shadow .1s ease;
+    overflow:hidden; user-select:none;
+  }
+  .pcard:active{ transform:scale(.98); }
+  .pcard .pname{
+    font-family:var(--font-hand); font-weight:700; font-size:1.35rem;
+    line-height:1; margin-bottom:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+  .pcard .pamt{ font-family:var(--font-bold); font-weight:800; font-size:1.9rem; line-height:1; }
+  .pcard .pamt.neg{ color:#7a0f0a; }
+  .pcard .check{
+    position:absolute; top:10px; right:10px;
+    width:30px; height:30px; border-radius:50%;
+    background:var(--ink); color:#fff; display:none;
+    align-items:center; justify-content:center; font-size:1.05rem; font-weight:800;
+    border:2px solid #fff;
+  }
+  .pcard.sel{ transform:translateY(-3px); box-shadow:5px 7px 0 var(--ink); outline:4px solid var(--ink); outline-offset:-1px; }
+  .pcard.sel .check{ display:flex; animation:pop .25s ease; }
+
+  .bill-card{ padding:18px; margin-top:8px; }
+  .bill-card h3{ font-family:var(--font-hand); font-weight:700; font-size:1.5rem; margin:0 0 12px; color:#3c3026; }
+  .bill-input-row{ display:flex; gap:12px; align-items:stretch; }
+  .bill-input{
+    flex:1; display:flex; align-items:center; gap:8px;
+    background:#fff; border:var(--bd); border-radius:16px; padding:10px 18px;
+  }
+  .bill-input .cur{ font-family:var(--font-bold); font-weight:800; font-size:1.7rem; color:#5a4a39; }
+  .bill-input input{
+    border:0; outline:0; background:transparent; width:100%;
+    font-family:var(--font-bold); font-weight:800; font-size:1.7rem; color:var(--ink);
+  }
+  .restar-btn{
+    flex:0 0 auto; min-width:120px; border:var(--bd); border-radius:16px;
+    background:var(--orange-l); color:#fff; font-family:var(--font-bold); font-weight:800;
+    font-size:1.2rem; cursor:pointer; box-shadow:var(--shadow-sm);
+    transition:transform .07s, box-shadow .07s, filter .15s; padding:0 18px;
+  }
+  .restar-btn.ready{ background:var(--orange); }
+  .restar-btn:hover{ filter:brightness(1.04); }
+  .restar-btn:active{ transform:translate(3px,3px); box-shadow:1px 1px 0 var(--ink); }
+  .tips{ display:flex; gap:10px; margin-top:14px; flex-wrap:wrap; }
+  .tip{
+    font-family:var(--font-bold); font-weight:700; font-size:1rem;
+    background:rgba(91,214,162,.35); border:2px solid var(--ink); border-radius:999px;
+    padding:8px 16px; cursor:pointer; box-shadow:var(--shadow-sm);
+    transition:transform .07s, box-shadow .07s, background .15s;
+  }
+  .tip:hover{ background:rgba(91,214,162,.6); }
+  .tip:active{ transform:translate(2px,2px); box-shadow:1px 1px 0 var(--ink); }
+  .hint-msg{
+    text-align:center; font-family:var(--font-hand); font-weight:700; font-size:1.2rem;
+    color:var(--orange-d); height:1.3em; margin:10px 0 0; transition:opacity .2s;
+  }
+  .game-actions{ display:flex; gap:14px; margin-top:18px; }
+
+  /* ============ GANADOR ============ */
+  .winner-card{
+    background:var(--p1); border:var(--bd); border-radius:24px; box-shadow:var(--shadow);
+    text-align:center; padding:26px 20px 28px; margin-bottom:22px; position:relative; overflow:hidden;
+  }
+  .trophy{ font-size:3.2rem; line-height:1; filter:drop-shadow(2px 3px 0 rgba(0,0,0,.25)); }
+  .winner-name{ font-family:var(--font-bold); font-weight:800; font-size:2.6rem; line-height:1.05; margin:6px 0 2px; word-break:break-word; }
+  .winner-sub{ font-family:var(--font-hand); font-weight:700; font-size:1.4rem; color:rgba(30,26,23,.75); }
+  .winner-amt{ font-family:var(--font-bold); font-weight:800; font-size:3rem; line-height:1; margin-top:2px; }
+
+  .results{ padding:18px 20px; margin-bottom:24px; }
+  .results h3{ font-family:var(--font-hand); font-weight:700; font-size:1.5rem; margin:0 0 12px; color:#3c3026; }
+  .res-row{ display:flex; align-items:center; gap:12px; padding:9px 0; border-bottom:2px dashed rgba(30,26,23,.13); }
+  .res-row:last-child{ border-bottom:0; }
+  .res-rank{ font-family:var(--font-bold); font-weight:800; font-size:1rem; width:20px; color:#a08a6e; }
+  .res-dot{ width:26px; height:26px; flex:0 0 26px; border-radius:50%; border:2.5px solid var(--ink); }
+  .res-name{ flex:1; font-family:var(--font-hand); font-weight:700; font-size:1.4rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .res-name .crown{ margin-left:6px; }
+  .res-amt{ font-family:var(--font-bold); font-weight:800; font-size:1.35rem; }
+  .res-amt.neg{ color:#9a160f; }
+
+  /* confetti */
+  .confetti{ position:fixed; top:-14px; width:11px; height:16px; z-index:50; opacity:.95; border-radius:2px; animation:fall linear forwards; pointer-events:none; }
+  @keyframes fall{ to{ transform:translateY(108vh) rotate(640deg); opacity:.9; } }
+
+  @media(max-width:480px){
+    .winner-name{ font-size:2.1rem; }
+    .winner-amt{ font-size:2.5rem; }
+    .step-num{ font-size:2.8rem; }
+    .btn-row{ flex-wrap:wrap; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- ============ 1 · INICIO ============ -->
+  <section id="screen-welcome" class="screen active">
+    <div class="hero-wrap">
+      <div class="poster">
+        <svg viewBox="0 0 420 430" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Ilustración de una mesa con la cuenta">
+          <!-- fondo -->
+          <rect x="0" y="0" width="420" height="430" fill="#F39B3E"/>
+          <g opacity="0.5" stroke="#D9791F" stroke-width="3">
+            <line x1="-20" y1="60" x2="120" y2="-20"/>
+            <line x1="-20" y1="160" x2="220" y2="-20"/>
+            <line x1="300" y1="450" x2="450" y2="320"/>
+            <line x1="220" y1="450" x2="450" y2="240"/>
+          </g>
+          <!-- banner título -->
+          <g>
+            <rect x="46" y="26" width="328" height="74" rx="8" fill="#FBF1DC" stroke="#1E1A17" stroke-width="4"/>
+            <rect x="38" y="34" width="14" height="14" fill="#1E1A17" transform="rotate(45 45 41)"/>
+            <rect x="368" y="34" width="14" height="14" fill="#1E1A17" transform="rotate(45 375 41)"/>
+            <text x="210" y="82" text-anchor="middle" font-family="Anton, sans-serif" font-size="46" fill="#1E1A17" letter-spacing="2">LA CUENTA</text>
+          </g>
+          <!-- mesa -->
+          <ellipse cx="210" cy="300" rx="178" ry="96" fill="#C44A14" stroke="#1E1A17" stroke-width="4"/>
+          <ellipse cx="210" cy="292" rx="178" ry="96" fill="#E76A22" stroke="#1E1A17" stroke-width="4"/>
+          <!-- platos -->
+          <g stroke="#1E1A17" stroke-width="3.5">
+            <ellipse cx="118" cy="300" rx="42" ry="24" fill="#FBF1DC"/>
+            <ellipse cx="118" cy="300" rx="26" ry="14" fill="#fff"/>
+            <circle cx="111" cy="298" r="6" fill="#5BD6A2"/>
+            <circle cx="125" cy="303" r="6" fill="#EE3D32"/>
+
+            <ellipse cx="306" cy="300" rx="42" ry="24" fill="#FBF1DC"/>
+            <ellipse cx="306" cy="300" rx="26" ry="14" fill="#fff"/>
+            <circle cx="300" cy="298" r="6" fill="#F7C948"/>
+            <circle cx="313" cy="302" r="6" fill="#F6A6C4"/>
+          </g>
+          <!-- copa de vino -->
+          <g stroke="#1E1A17" stroke-width="3.5" fill="#B23A22">
+            <path d="M198 232 q12 26 -10 30 q-22 -4 -10 -30 z" fill="#9C2D17"/>
+            <line x1="198" y1="262" x2="198" y2="290" stroke="#1E1A17"/>
+            <ellipse cx="198" cy="292" rx="16" ry="5" fill="#FBF1DC"/>
+          </g>
+          <!-- botella -->
+          <g stroke="#1E1A17" stroke-width="3.5">
+            <rect x="244" y="206" width="22" height="58" rx="6" fill="#46785A"/>
+            <rect x="250" y="186" width="10" height="24" fill="#46785A"/>
+            <rect x="246" y="226" width="18" height="22" fill="#EE3D32"/>
+          </g>
+          <!-- la cuenta (recibo largo) -->
+          <g>
+            <path d="M150 150 h120 v176 l-15 12 l-15 -12 l-15 12 l-15 -12 l-15 12 l-15 -12 l-15 12 l-15 -12 z"
+                  fill="#FBF7EE" stroke="#1E1A17" stroke-width="4" transform="rotate(-4 210 230)"/>
+            <g transform="rotate(-4 210 230)" stroke="#C7B79B" stroke-width="4" stroke-linecap="round">
+              <line x1="166" y1="172" x2="254" y2="172"/>
+              <line x1="166" y1="190" x2="254" y2="190"/>
+              <line x1="166" y1="208" x2="232" y2="208"/>
+              <line x1="166" y1="226" x2="254" y2="226"/>
+              <line x1="166" y1="244" x2="226" y2="244"/>
+              <line x1="166" y1="262" x2="254" y2="262"/>
+              <line x1="166" y1="280" x2="240" y2="280"/>
+            </g>
+            <text x="210" y="167" text-anchor="middle" font-family="Anton, sans-serif" font-size="16" fill="#1E1A17" transform="rotate(-4 210 230)">TOTAL...</text>
+          </g>
+          <!-- monedas -->
+          <g stroke="#1E1A17" stroke-width="3">
+            <circle cx="74" cy="232" r="15" fill="#F7C948"/>
+            <text x="74" y="238" text-anchor="middle" font-family="Baloo 2, sans-serif" font-weight="800" font-size="16" fill="#1E1A17">$</text>
+            <circle cx="58" cy="252" r="15" fill="#F7C948"/>
+            <text x="58" y="258" text-anchor="middle" font-family="Baloo 2, sans-serif" font-weight="800" font-size="16" fill="#1E1A17">$</text>
+            <circle cx="350" cy="244" r="15" fill="#F7C948"/>
+            <text x="350" y="250" text-anchor="middle" font-family="Baloo 2, sans-serif" font-weight="800" font-size="16" fill="#1E1A17">$</text>
+          </g>
+        </svg>
+      </div>
+
+      <p class="eyebrow" style="margin-top:20px;">¡Bienvenidos a!</p>
+      <h1 class="title" style="margin-bottom:0;">LA CUENTA</h1>
+      <p class="subnote" style="margin:4px 0 18px;">¡Gana el que no paga!</p>
+
+      <button class="btn btn-primary" style="max-width:280px;" onclick="goConfig(true)">JUGAR</button>
+      <p class="credits">Marcador no oficial · inspirado en el juego de Litus Carreras y Ariadna Altimira</p>
+    </div>
+  </section>
+
+  <!-- ============ 2 · CONFIGURACIÓN ============ -->
+  <section id="screen-config" class="screen">
+    <p class="eyebrow">prepara la mesa</p>
+    <h1 class="title">CONFIGURACIÓN</h1>
+
+    <div class="card cfg-block">
+      <div class="cfg-label">Número de jugadores</div>
+      <div class="stepper">
+        <button class="step-btn" id="btn-minus" onclick="changeNum(-1)">−</button>
+        <div style="text-align:center;">
+          <div class="step-num" id="num-display">3</div>
+          <div class="step-hint">de 3 a 8 jugadores</div>
+        </div>
+        <button class="step-btn" id="btn-plus" onclick="changeNum(1)">+</button>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="cfg-label">Monto inicial por jugador</div>
+      <div class="amount-field">
+        <span class="cur">$</span>
+        <input id="amount-input" type="text" inputmode="numeric" value="900" oninput="onAmountInput(this)">
+      </div>
+      <div class="step-hint" style="text-align:left; margin-top:8px;">Sugerido: $900 para 3 jugadores, +$100 por cada jugador extra.</div>
+    </div>
+
+    <div class="btn-row" style="margin-top:auto; padding-top:24px;">
+      <button class="btn btn-back" onclick="show('welcome')">Atrás</button>
+      <button class="btn btn-primary" onclick="goPlayers()">Continuar</button>
+    </div>
+  </section>
+
+  <!-- ============ 3 · JUGADORES ============ -->
+  <section id="screen-players" class="screen">
+    <p class="eyebrow">¿quién está en la mesa?</p>
+    <h1 class="title">JUGADORES</h1>
+
+    <div class="players-list" id="players-list"></div>
+
+    <div class="btn-row" style="margin-top:auto; padding-top:24px;">
+      <button class="btn btn-back" onclick="show('config')">Atrás</button>
+      <button class="btn btn-primary" onclick="startGame()">Comenzar partida</button>
+    </div>
+  </section>
+
+  <!-- ============ 4 · PARTIDA ============ -->
+  <section id="screen-game" class="screen">
+    <div class="game-top">
+      <span class="round-chip" id="round-chip">Ronda 1</span>
+      <button class="undo-btn" id="undo-btn" onclick="undo()" disabled>↶ Deshacer</button>
+    </div>
+
+    <p class="eyebrow">resta lo que consumió</p>
+    <h1 class="title" style="margin-bottom:2px;">LA CUENTA</h1>
+    <p class="subnote" style="margin:0 0 6px;">Toca uno o varios jugadores para dividir la cuenta.</p>
+
+    <div class="grid" id="game-grid"></div>
+
+    <div class="card bill-card">
+      <h3>Selecciona uno o más jugadores</h3>
+      <div class="bill-input-row">
+        <div class="bill-input">
+          <span class="cur">$</span>
+          <input id="bill-input" type="text" inputmode="numeric" value="0" oninput="onBillInput(this)">
+        </div>
+        <button class="restar-btn" id="restar-btn" onclick="restar()">RESTAR</button>
+      </div>
+      <div class="tips">
+        <button class="tip" onclick="addTip(10)">+10</button>
+        <button class="tip" onclick="addTip(25)">+25</button>
+        <button class="tip" onclick="addTip(50)">+50</button>
+        <button class="tip" onclick="addTip(100)">+100</button>
+        <button class="tip" style="background:rgba(238,61,50,.18);" onclick="clearBill()">Borrar</button>
+      </div>
+      <p class="hint-msg" id="hint-msg"></p>
+    </div>
+
+    <div class="game-actions">
+      <button class="btn btn-cream" onclick="showWinner()">Terminar</button>
+      <button class="btn btn-primary" onclick="showWinner()">Ver ganador</button>
+    </div>
+  </section>
+
+  <!-- ============ 5 · GANADOR ============ -->
+  <section id="screen-winner" class="screen">
+    <p class="eyebrow">¡y el ganador es!</p>
+
+    <div class="winner-card" id="winner-card">
+      <div class="trophy">🏆</div>
+      <div class="winner-name" id="winner-name">—</div>
+      <div class="winner-sub">le sobraron</div>
+      <div class="winner-amt" id="winner-amt">$0</div>
+    </div>
+
+    <div class="card results">
+      <h3>Resultados</h3>
+      <div id="results-list"></div>
+    </div>
+
+    <p class="eyebrow" style="margin-bottom:12px;">¿Otra ronda?</p>
+    <button class="btn btn-primary" style="margin-bottom:14px;" onclick="sameePlayers()">Mismos jugadores</button>
+    <button class="btn btn-cream" style="margin-bottom:14px;" onclick="addMorePlayers()">Agregar más jugadores</button>
+    <button class="btn btn-cream" onclick="newGame()">Partida nueva</button>
+  </section>
+
+</div>
+
+<script>
+/* ===================== ESTADO ===================== */
+const COLORS = ['var(--p1)','var(--p2)','var(--p3)','var(--p4)','var(--p5)','var(--p6)','var(--p7)','var(--p8)'];
+const COLOR_HEX = ['#EE3D32','#5BD6A2','#F6A6C4','#F7C948','#6FB7E8','#B89BE3','#F2884B','#46C7B4'];
+
+const state = {
+  numPlayers: 3,
+  initialAmount: 900,
+  amountTouched: false,   // ¿el usuario editó el monto manualmente?
+  players: [],            // {name, amount}
+  selected: new Set(),
+  bill: 0,
+  round: 1,
+  history: []             // para deshacer
+};
+
+/* ===================== NAVEGACIÓN ===================== */
+function show(id){
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + id).classList.add('active');
+  window.scrollTo({top:0, behavior:'instant'});
+}
+
+function suggestedAmount(n){ return 900 + (n - 3) * 100; }
+
+/* ===================== CONFIGURACIÓN ===================== */
+function goConfig(fresh){
+  if(fresh){
+    state.numPlayers = 3;
+    state.initialAmount = 900;
+    state.amountTouched = false;
+    state.players = [];
+    state.round = 1;
+  }
+  renderConfig();
+  show('config');
+}
+
+function renderConfig(){
+  document.getElementById('num-display').textContent = state.numPlayers;
+  document.getElementById('amount-input').value = state.initialAmount;
+  document.getElementById('btn-minus').disabled = state.numPlayers <= 3;
+  document.getElementById('btn-plus').disabled = state.numPlayers >= 8;
+}
+
+function changeNum(delta){
+  const n = Math.min(8, Math.max(3, state.numPlayers + delta));
+  if(n === state.numPlayers) return;
+  state.numPlayers = n;
+  // si el usuario no tocó el monto, lo recalculamos automáticamente
+  if(!state.amountTouched) state.initialAmount = suggestedAmount(n);
+  renderConfig();
+}
+
+function onAmountInput(el){
+  const v = parseInt(el.value.replace(/[^0-9]/g,''), 10);
+  state.initialAmount = isNaN(v) ? 0 : v;
+  state.amountTouched = true;
+}
+
+/* ===================== JUGADORES ===================== */
+function goPlayers(){
+  if(state.initialAmount <= 0){
+    document.getElementById('amount-input').value = suggestedAmount(state.numPlayers);
+    state.initialAmount = suggestedAmount(state.numPlayers);
+  }
+  // construir/ajustar el arreglo conservando nombres existentes
+  const prev = state.players;
+  state.players = [];
+  for(let i=0;i<state.numPlayers;i++){
+    state.players.push({ name: (prev[i] && prev[i].name) ? prev[i].name : '', amount: state.initialAmount });
+  }
+  renderPlayers();
+  show('players');
+}
+
+function renderPlayers(){
+  const list = document.getElementById('players-list');
+  list.innerHTML = '';
+  state.players.forEach((p, i) => {
+    const row = document.createElement('div');
+    row.className = 'player-row';
+    row.innerHTML =
+      '<div class="pdot" style="background:'+COLORS[i]+'">'+(i+1)+'</div>' +
+      '<input type="text" maxlength="14" placeholder="Jugador '+(i+1)+'" value="'+escapeHtml(p.name)+'">';
+    row.querySelector('input').addEventListener('input', e => { state.players[i].name = e.target.value; });
+    list.appendChild(row);
+  });
+}
+
+/* ===================== PARTIDA ===================== */
+function startGame(){
+  state.players.forEach((p, i) => {
+    if(!p.name.trim()) p.name = 'Jugador ' + (i+1);
+    p.amount = state.initialAmount;
+  });
+  state.selected.clear();
+  state.bill = 0;
+  state.history = [];
+  renderGame();
+  updateUndo();
+  show('game');
+}
+
+function renderGame(){
+  document.getElementById('round-chip').textContent = 'Ronda ' + state.round;
+  document.getElementById('bill-input').value = state.bill;
+
+  const grid = document.getElementById('game-grid');
+  grid.innerHTML = '';
+  state.players.forEach((p, i) => {
+    const sel = state.selected.has(i);
+    const neg = p.amount < 0;
+    const card = document.createElement('div');
+    card.className = 'pcard' + (sel ? ' sel' : '');
+    card.style.background = COLORS[i];
+    card.innerHTML =
+      '<div class="check">✓</div>' +
+      '<div class="pname">'+escapeHtml(p.name)+'</div>' +
+      '<div class="pamt'+(neg?' neg':'')+'">$'+fmt(p.amount)+'</div>';
+    card.onclick = () => toggle(i);
+    grid.appendChild(card);
+  });
+  updateRestarBtn();
+}
+
+function toggle(i){
+  if(state.selected.has(i)) state.selected.delete(i);
+  else state.selected.add(i);
+  renderGame();
+}
+
+function onBillInput(el){
+  let v = el.value.replace(/[^0-9.]/g,'');
+  // permitir un solo punto decimal
+  const parts = v.split('.');
+  if(parts.length > 2) v = parts[0] + '.' + parts.slice(1).join('');
+  el.value = v;
+  state.bill = parseFloat(v) || 0;
+  updateRestarBtn();
+}
+
+function addTip(amount){
+  state.bill = (parseFloat(state.bill) || 0) + amount;
+  document.getElementById('bill-input').value = fmt(state.bill);
+  updateRestarBtn();
+}
+
+function clearBill(){
+  state.bill = 0;
+  document.getElementById('bill-input').value = '0';
+  updateRestarBtn();
+}
+
+function updateRestarBtn(){
+  const ready = state.selected.size > 0 && state.bill > 0;
+  document.getElementById('restar-btn').classList.toggle('ready', ready);
+}
+
+function restar(){
+  if(state.selected.size === 0){ flash('Toca al menos un jugador 👆'); return; }
+  if(!(state.bill > 0)){ flash('Escribe un monto a restar 💸'); return; }
+
+  // guardar para deshacer
+  state.history.push({
+    amounts: state.players.map(p => p.amount),
+    label: 'Restar $' + fmt(state.bill)
+  });
+  if(state.history.length > 50) state.history.shift();
+
+  const share = state.bill / state.selected.size;
+  const names = [];
+  state.selected.forEach(i => { state.players[i].amount -= share; names.push(state.players[i].name); });
+
+  const msg = state.selected.size > 1
+    ? 'Se dividió $'+fmt(state.bill)+' entre '+state.selected.size+' ($'+fmt(share)+' c/u)'
+    : 'Pagó $'+fmt(state.bill)+' · '+names[0];
+
+  state.bill = 0;
+  state.selected.clear();
+  renderGame();
+  updateUndo();
+  flash(msg, true);
+}
+
+function undo(){
+  if(state.history.length === 0) return;
+  const last = state.history.pop();
+  state.players.forEach((p, i) => { p.amount = last.amounts[i]; });
+  renderGame();
+  updateUndo();
+  flash('Deshecho: ' + last.label);
+}
+
+function updateUndo(){
+  document.getElementById('undo-btn').disabled = state.history.length === 0;
+}
+
+let flashTimer;
+function flash(text, good){
+  const el = document.getElementById('hint-msg');
+  el.textContent = text;
+  el.style.color = good ? '#1f7a4d' : 'var(--orange-d)';
+  el.style.opacity = '1';
+  clearTimeout(flashTimer);
+  flashTimer = setTimeout(() => { el.style.opacity = '0'; }, 2600);
+}
+
+/* ===================== GANADOR ===================== */
+function showWinner(){
+  // ordenar por monto restante (mayor gana)
+  const ranked = state.players
+    .map((p, i) => ({ ...p, color: COLOR_HEX[i] }))
+    .sort((a, b) => b.amount - a.amount);
+
+  const winner = ranked[0];
+  document.getElementById('winner-name').textContent = winner.name;
+  document.getElementById('winner-amt').textContent = '$' + fmt(winner.amount);
+  document.getElementById('winner-card').style.background = winner.color;
+
+  const list = document.getElementById('results-list');
+  list.innerHTML = '';
+  ranked.forEach((p, idx) => {
+    const neg = p.amount < 0;
+    const row = document.createElement('div');
+    row.className = 'res-row';
+    row.innerHTML =
+      '<span class="res-rank">'+(idx+1)+'</span>' +
+      '<span class="res-dot" style="background:'+p.color+'"></span>' +
+      '<span class="res-name">'+escapeHtml(p.name)+(idx===0?'<span class="crown">👑</span>':'')+'</span>' +
+      '<span class="res-amt'+(neg?' neg':'')+'">$'+fmt(p.amount)+'</span>';
+    list.appendChild(row);
+  });
+
+  show('winner');
+  launchConfetti();
+}
+
+/* ----- botones de otra ronda ----- */
+function sameePlayers(){
+  state.round++;
+  state.players.forEach(p => { p.amount = state.initialAmount; });
+  state.selected.clear();
+  state.bill = 0;
+  state.history = [];
+  renderGame();
+  updateUndo();
+  show('game');
+}
+
+function addMorePlayers(){
+  // vamos a configuración conservando los jugadores; al continuar se ajusta el roster
+  renderConfig();
+  show('config');
+}
+
+function newGame(){
+  goConfig(true);
+}
+
+/* ===================== UTILIDADES ===================== */
+function fmt(n){
+  const r = Math.round((Number(n) + Number.EPSILON) * 100) / 100;
+  return Number.isInteger(r) ? String(r) : r.toFixed(2);
+}
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function launchConfetti(){
+  const colors = COLOR_HEX.concat(['#F26B1F','#FDF6E3']);
+  for(let i=0;i<70;i++){
+    const c = document.createElement('div');
+    c.className = 'confetti';
+    c.style.left = Math.random()*100 + 'vw';
+    c.style.background = colors[Math.floor(Math.random()*colors.length)];
+    c.style.animationDuration = (2 + Math.random()*1.8) + 's';
+    c.style.animationDelay = (Math.random()*0.5) + 's';
+    c.style.transform = 'rotate(' + (Math.random()*360) + 'deg)';
+    if(Math.random()>0.5) c.style.borderRadius = '50%';
+    document.body.appendChild(c);
+    setTimeout(() => c.remove(), 4200);
+  }
+}
+</script>
+</body>
+</html>
