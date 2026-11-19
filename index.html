@@ -277,6 +277,16 @@
   .confetti{ position:fixed; top:-14px; width:11px; height:16px; z-index:50; opacity:.95; border-radius:2px; animation:fall linear forwards; pointer-events:none; }
   @keyframes fall{ to{ transform:translateY(108vh) rotate(640deg); opacity:.9; } }
 
+  /* enlace de comentarios */
+  .feedback-link{
+    display:block; text-align:center; margin:16px auto 0;
+    font-family:var(--font-hand); font-weight:700; font-size:1.3rem;
+    color:var(--ink); text-decoration:underline; text-decoration-color:var(--orange);
+    text-decoration-thickness:3px; text-underline-offset:4px;
+  }
+  .feedback-link:hover{ color:var(--orange-d); }
+  .feedback-link[hidden]{ display:none; }
+
   @media(max-width:480px){
     .winner-name{ font-size:2.1rem; }
     .winner-amt{ font-size:2.5rem; }
@@ -368,6 +378,7 @@
 
       <button class="btn btn-primary" style="max-width:280px;" onclick="goConfig(true)">JUGAR</button>
       <p class="credits">Marcador no oficial · inspirado en el juego de Litus Carreras y Ariadna Altimira</p>
+      <a class="feedback-link" target="_blank" rel="noopener" hidden>💬 ¿Algo que mejorar? Cuéntanos</a>
     </div>
   </section>
 
@@ -474,11 +485,20 @@
     <button class="btn btn-primary" style="margin-bottom:14px;" onclick="sameePlayers()">Mismos jugadores</button>
     <button class="btn btn-cream" style="margin-bottom:14px;" onclick="addMorePlayers()">Agregar más jugadores</button>
     <button class="btn btn-cream" onclick="newGame()">Partida nueva</button>
+    <a class="feedback-link" target="_blank" rel="noopener" hidden>💬 ¿Cómo te fue con la app? Cuéntanos</a>
   </section>
 
 </div>
 
 <script>
+/* ===================== COMENTARIOS ===================== */
+// Pega aquí el enlace público del formulario de Google (el que empieza por https://forms.gle/ o https://docs.google.com/forms/).
+// Mientras no haya enlace, los botones de comentarios quedan ocultos.
+const FEEDBACK_URL = 'https://forms.gle/mAdTDqwogCM6CPae6';
+if (/^https:\/\//.test(FEEDBACK_URL)) {
+  document.querySelectorAll('.feedback-link').forEach(a => { a.href = FEEDBACK_URL; a.hidden = false; });
+}
+
 /* ===================== ESTADO ===================== */
 const COLORS = ['var(--p1)','var(--p2)','var(--p3)','var(--p4)','var(--p5)','var(--p6)','var(--p7)','var(--p8)'];
 const COLOR_HEX = ['#EE3D32','#5BD6A2','#F6A6C4','#F7C948','#6FB7E8','#B89BE3','#F2884B','#46C7B4'];
